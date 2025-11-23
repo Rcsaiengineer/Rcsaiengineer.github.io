@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Wallet, TrendingUp, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Wallet, TrendingUp, MoreVertical, Pencil, Trash2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -21,6 +22,7 @@ interface Wallet {
 
 export default function Wallets() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -205,7 +207,7 @@ export default function Wallets() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {wallets.map((wallet) => (
-            <Card key={wallet.id} className="glass border-border/50 hover:shadow-glow-primary transition-all group">
+            <Card key={wallet.id} className="glass border-border/50 hover:shadow-glow-primary transition-all group cursor-pointer" onClick={() => navigate(`/wallets/${wallet.id}/assets`)}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -220,18 +222,18 @@ export default function Wallets() {
                     )}
                   </div>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="glass">
-                      <DropdownMenuItem onClick={() => handleEdit(wallet)}>
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEdit(wallet); }}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => handleDelete(wallet.id)}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(wallet.id); }}
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -247,12 +249,9 @@ export default function Wallets() {
                     <p className="text-sm text-muted-foreground mb-1">Valor Total</p>
                     <p className="text-2xl font-bold">{formatCurrency(wallet.total_value)}</p>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Retorno</span>
-                    <span className="text-success flex items-center">
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      0%
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Ver Ativos</span>
+                    <ArrowRight className="h-4 w-4 text-primary" />
                   </div>
                 </div>
               </CardContent>

@@ -8,7 +8,8 @@ import {
   Wallet, 
   TrendingUp, 
   Receipt, 
-  CreditCard,
+  DollarSign,
+  History,
   LogOut,
   Menu,
   X
@@ -46,9 +47,10 @@ export default function Layout({ children }: LayoutProps) {
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/wallets', icon: Wallet, label: 'Carteiras' },
+    { to: '/operations', icon: History, label: 'Operações' },
     { to: '/rebalance', icon: TrendingUp, label: 'Rebalanceamento' },
+    { to: '/dividends', icon: DollarSign, label: 'Dividendos' },
     { to: '/expenses', icon: Receipt, label: 'Despesas' },
-    { to: '/dividends', icon: CreditCard, label: 'Dividendos' },
   ];
 
   return (

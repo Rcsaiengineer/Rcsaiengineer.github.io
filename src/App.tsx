@@ -8,6 +8,8 @@ import Layout from "@/components/Layout";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Wallets from "./pages/Wallets";
+import Assets from "./pages/Assets";
+import Operations from "./pages/Operations";
 import Rebalance from "./pages/Rebalance";
 import Expenses from "./pages/Expenses";
 import Dividends from "./pages/Dividends";
@@ -38,6 +40,22 @@ const App = () => (
               element={
                 <Layout>
                   <Wallets />
+                </Layout>
+              }
+            />
+            <Route
+              path="/wallets/:walletId/assets"
+              element={
+                <Layout>
+                  <Assets />
+                </Layout>
+              }
+            />
+            <Route
+              path="/operations"
+              element={
+                <Layout>
+                  <Operations />
                 </Layout>
               }
             />

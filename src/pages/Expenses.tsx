@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Receipt, TrendingDown, Calendar } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Plus, Receipt, TrendingDown, Calendar, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ExpenseCategory {
@@ -33,6 +34,7 @@ export default function Expenses() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -110,26 +112,65 @@ export default function Expenses() {
     }
   };
 
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    setFormData({
+      description: expense.description,
+      amount: expense.amount.toString(),
+      category_id: expense.category_id,
+      payment_method: expense.payment_method || 'pix',
+      expense_date: expense.expense_date,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta despesa?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Despesa excluída com sucesso!');
+      loadData();
+    } catch (error: any) {
+      console.error('Error deleting expense:', error);
+      toast.error('Erro ao excluir despesa');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from('expenses')
-        .insert({
-          user_id: user.id,
-          description: formData.description,
-          amount: parseFloat(formData.amount),
-          payment_method: formData.payment_method,
-          expense_date: formData.expense_date,
-          category_id: formData.category_id,
-        });
+      const data = {
+        user_id: user.id,
+        description: formData.description,
+        amount: parseFloat(formData.amount),
+        payment_method: formData.payment_method,
+        expense_date: formData.expense_date,
+        category_id: formData.category_id,
+      };
 
-      if (error) throw error;
+      if (editingExpense) {
+        const { error } = await supabase
+          .from('expenses')
+          .update(data)
+          .eq('id', editingExpense.id);
+        if (error) throw error;
+        toast.success('Despesa atualizada com sucesso!');
+      } else {
+        const { error } = await supabase.from('expenses').insert(data);
+        if (error) throw error;
+        toast.success('Despesa registrada com sucesso!');
+      }
 
-      toast.success('Despesa registrada com sucesso!');
       setIsDialogOpen(false);
+      setEditingExpense(null);
       setFormData({
         description: '',
         amount: '',
@@ -140,7 +181,7 @@ export default function Expenses() {
       loadData();
     } catch (error: any) {
       console.error('Error saving expense:', error);
-      toast.error('Erro ao registrar despesa');
+      toast.error('Erro ao salvar despesa');
     }
   };
 
@@ -173,7 +214,19 @@ export default function Expenses() {
           <h1 className="text-4xl font-bold mb-2">Despesas</h1>
           <p className="text-muted-foreground">Controle completo dos seus gastos</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setEditingExpense(null);
+            setFormData({
+              description: '',
+              amount: '',
+              category_id: '',
+              payment_method: '',
+              expense_date: '',
+            });
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="shadow-glow-primary">
               <Plus className="mr-2 h-4 w-4" />
@@ -182,7 +235,7 @@ export default function Expenses() {
           </DialogTrigger>
           <DialogContent className="glass">
             <DialogHeader>
-              <DialogTitle>Registrar Despesa</DialogTitle>
+              <DialogTitle>{editingExpense ? 'Editar Despesa' : 'Registrar Despesa'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -254,7 +307,7 @@ export default function Expenses() {
                 />
               </div>
               <Button type="submit" className="w-full">
-                Registrar Despesa
+                {editingExpense ? 'Atualizar Despesa' : 'Registrar Despesa'}
               </Button>
             </form>
           </DialogContent>
@@ -316,7 +369,7 @@ export default function Expenses() {
               {expenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className="flex items-center justify-between p-4 rounded-lg glass border border-border/50 hover:border-primary/50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg glass border border-border/50 hover:border-primary/50 transition-colors group"
                 >
                   <div className="flex items-center space-x-4">
                     <div
@@ -334,10 +387,32 @@ export default function Expenses() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-destructive">
-                      {formatCurrency(expense.amount)}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-destructive">
+                        {formatCurrency(expense.amount)}
+                      </p>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="glass">
+                        <DropdownMenuItem onClick={() => handleEdit(expense)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(expense.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               ))}

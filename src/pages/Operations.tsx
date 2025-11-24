@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, History } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Plus, History, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { OperationForm } from '@/components/operations/OperationForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -30,6 +31,7 @@ export default function Operations() {
   const [operations, setOperations] = useState<Operation[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingOperation, setEditingOperation] = useState<Operation | null>(null);
 
   useEffect(() => {
     loadOperations();
@@ -88,6 +90,29 @@ export default function Operations() {
       toast.error('Erro ao carregar operações');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (operation: Operation) => {
+    setEditingOperation(operation);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta operação?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('operations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Operação excluída com sucesso!');
+      loadOperations();
+    } catch (error: any) {
+      console.error('Error deleting operation:', error);
+      toast.error('Erro ao excluir operação');
     }
   };
 
@@ -181,7 +206,7 @@ export default function Operations() {
               {operations.map((operation) => (
                 <div
                   key={operation.id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-card/50 border border-border/30 hover:border-primary/50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg bg-card/50 border border-border/30 hover:border-primary/50 transition-colors group"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -221,6 +246,26 @@ export default function Operations() {
                       <p className="text-sm text-muted-foreground mt-2 italic">{operation.notes}</p>
                     )}
                   </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="glass">
+                      <DropdownMenuItem onClick={() => handleEdit(operation)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDelete(operation.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ))}
             </div>
@@ -229,14 +274,19 @@ export default function Operations() {
       </Card>
 
       {/* Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) setEditingOperation(null);
+      }}>
         <DialogContent className="glass">
           <DialogHeader>
-            <DialogTitle>Nova Operação</DialogTitle>
+            <DialogTitle>{editingOperation ? 'Editar Operação' : 'Nova Operação'}</DialogTitle>
           </DialogHeader>
           <OperationForm
+            operation={editingOperation}
             onSuccess={() => {
               setIsDialogOpen(false);
+              setEditingOperation(null);
               loadOperations();
             }}
           />

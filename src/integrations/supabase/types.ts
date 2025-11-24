@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_type: string
+          earned_at: string
+          id: string
+          level: number
+          user_id: string
+        }
+        Insert: {
+          achievement_type: string
+          earned_at?: string
+          id?: string
+          level?: number
+          user_id: string
+        }
+        Update: {
+          achievement_type?: string
+          earned_at?: string
+          id?: string
+          level?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      alerts: {
+        Row: {
+          alert_type: string
+          asset_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          target_value: number | null
+          triggered_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          asset_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          target_value?: number | null
+          triggered_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          asset_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          target_value?: number | null
+          triggered_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           asset_class: string
@@ -182,6 +250,42 @@ export type Database = {
           },
         ]
       }
+      financial_goals: {
+        Row: {
+          created_at: string
+          current_amount: number
+          deadline: string | null
+          goal_type: string
+          id: string
+          name: string
+          target_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number
+          deadline?: string | null
+          goal_type: string
+          id?: string
+          name: string
+          target_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number
+          deadline?: string | null
+          goal_type?: string
+          id?: string
+          name?: string
+          target_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       operations: {
         Row: {
           asset_id: string
@@ -219,6 +323,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "operations_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_history: {
+        Row: {
+          asset_id: string | null
+          id: string
+          price: number
+          recorded_at: string
+          source: string | null
+        }
+        Insert: {
+          asset_id?: string | null
+          id?: string
+          price: number
+          recorded_at?: string
+          source?: string | null
+        }
+        Update: {
+          asset_id?: string | null
+          id?: string
+          price?: number
+          recorded_at?: string
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_asset_id_fkey"
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"

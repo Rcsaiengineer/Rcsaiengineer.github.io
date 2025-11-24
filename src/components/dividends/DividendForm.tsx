@@ -13,24 +13,44 @@ interface Asset {
   wallet_id: string;
 }
 
+interface Dividend {
+  id: string;
+  asset_id: string;
+  amount: number;
+  payment_date: string;
+  ex_date: string | null;
+}
+
 interface DividendFormProps {
+  dividend?: Dividend | null;
   onSuccess: () => void;
 }
 
-export function DividendForm({ onSuccess }: DividendFormProps) {
+export function DividendForm({ dividend, onSuccess }: DividendFormProps) {
   const { user } = useAuth();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [formData, setFormData] = useState({
-    asset_id: '',
-    amount: '',
-    payment_date: '',
-    ex_date: '',
+    asset_id: dividend?.asset_id || '',
+    amount: dividend?.amount?.toString() || '',
+    payment_date: dividend?.payment_date || '',
+    ex_date: dividend?.ex_date || '',
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadAssets();
   }, [user]);
+
+  useEffect(() => {
+    if (dividend) {
+      setFormData({
+        asset_id: dividend.asset_id,
+        amount: dividend.amount.toString(),
+        payment_date: dividend.payment_date,
+        ex_date: dividend.ex_date || '',
+      });
+    }
+  }, [dividend]);
 
   const loadAssets = async () => {
     if (!user) return;
@@ -73,14 +93,23 @@ export function DividendForm({ onSuccess }: DividendFormProps) {
         ex_date: formData.ex_date || null,
       };
 
-      const { error } = await supabase.from('dividends').insert(data);
-      if (error) throw error;
+      if (dividend) {
+        const { error } = await supabase
+          .from('dividends')
+          .update(data)
+          .eq('id', dividend.id);
+        if (error) throw error;
+        toast.success('Dividendo atualizado com sucesso!');
+      } else {
+        const { error } = await supabase.from('dividends').insert(data);
+        if (error) throw error;
+        toast.success('Dividendo registrado com sucesso!');
+      }
 
-      toast.success('Dividendo registrado com sucesso!');
       onSuccess();
     } catch (error: any) {
       console.error('Error saving dividend:', error);
-      toast.error('Erro ao registrar dividendo');
+      toast.error('Erro ao salvar dividendo');
     } finally {
       setLoading(false);
     }
@@ -143,7 +172,7 @@ export function DividendForm({ onSuccess }: DividendFormProps) {
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Salvando...' : 'Registrar Dividendo'}
+        {loading ? 'Salvando...' : dividend ? 'Atualizar Dividendo' : 'Registrar Dividendo'}
       </Button>
     </form>
   );

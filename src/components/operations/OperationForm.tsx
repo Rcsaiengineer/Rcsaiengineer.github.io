@@ -14,27 +14,53 @@ interface Asset {
   wallet_id: string;
 }
 
+interface Operation {
+  id: string;
+  asset_id: string;
+  operation_type: string;
+  quantity: number;
+  price: number;
+  fees: number | null;
+  operation_date: string;
+  notes: string | null;
+}
+
 interface OperationFormProps {
+  operation?: Operation | null;
   onSuccess: () => void;
 }
 
-export function OperationForm({ onSuccess }: OperationFormProps) {
+export function OperationForm({ operation, onSuccess }: OperationFormProps) {
   const { user } = useAuth();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [formData, setFormData] = useState({
-    asset_id: '',
-    operation_type: '',
-    quantity: '',
-    price: '',
-    fees: '',
-    operation_date: '',
-    notes: '',
+    asset_id: operation?.asset_id || '',
+    operation_type: operation?.operation_type || '',
+    quantity: operation?.quantity?.toString() || '',
+    price: operation?.price?.toString() || '',
+    fees: operation?.fees?.toString() || '',
+    operation_date: operation?.operation_date || '',
+    notes: operation?.notes || '',
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadAssets();
   }, [user]);
+
+  useEffect(() => {
+    if (operation) {
+      setFormData({
+        asset_id: operation.asset_id,
+        operation_type: operation.operation_type,
+        quantity: operation.quantity.toString(),
+        price: operation.price.toString(),
+        fees: operation.fees?.toString() || '',
+        operation_date: operation.operation_date,
+        notes: operation.notes || '',
+      });
+    }
+  }, [operation]);
 
   const loadAssets = async () => {
     if (!user) return;
@@ -80,14 +106,23 @@ export function OperationForm({ onSuccess }: OperationFormProps) {
         notes: formData.notes || null,
       };
 
-      const { error } = await supabase.from('operations').insert(data);
-      if (error) throw error;
+      if (operation) {
+        const { error } = await supabase
+          .from('operations')
+          .update(data)
+          .eq('id', operation.id);
+        if (error) throw error;
+        toast.success('Operação atualizada com sucesso!');
+      } else {
+        const { error } = await supabase.from('operations').insert(data);
+        if (error) throw error;
+        toast.success('Operação registrada com sucesso!');
+      }
 
-      toast.success('Operação registrada com sucesso!');
       onSuccess();
     } catch (error: any) {
       console.error('Error saving operation:', error);
-      toast.error('Erro ao registrar operação');
+      toast.error('Erro ao salvar operação');
     } finally {
       setLoading(false);
     }
@@ -197,7 +232,7 @@ export function OperationForm({ onSuccess }: OperationFormProps) {
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Salvando...' : 'Registrar Operação'}
+        {loading ? 'Salvando...' : operation ? 'Atualizar Operação' : 'Registrar Operação'}
       </Button>
     </form>
   );

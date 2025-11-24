@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, DollarSign, TrendingUp, Calendar } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Plus, DollarSign, TrendingUp, Calendar, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { DividendForm } from '@/components/dividends/DividendForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -33,6 +34,7 @@ export default function Dividends() {
   const [dividends, setDividends] = useState<Dividend[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingDividend, setEditingDividend] = useState<Dividend | null>(null);
 
   useEffect(() => {
     loadDividends();
@@ -94,6 +96,29 @@ export default function Dividends() {
       toast.error('Erro ao carregar dividendos');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (dividend: Dividend) => {
+    setEditingDividend(dividend);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir este dividendo?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('dividends')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Dividendo excluído com sucesso!');
+      loadDividends();
+    } catch (error: any) {
+      console.error('Error deleting dividend:', error);
+      toast.error('Erro ao excluir dividendo');
     }
   };
 
@@ -299,14 +324,36 @@ export default function Dividends() {
             ) : (
               <div className="space-y-3 max-h-80 overflow-y-auto">
                 {dividends.slice(0, 10).map((dividend) => (
-                  <div key={dividend.id} className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30">
+                  <div key={dividend.id} className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30 group">
                     <div>
                       <p className="font-semibold">{dividend.assets.ticker}</p>
                       <p className="text-xs text-muted-foreground">
                         {format(parseISO(dividend.payment_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                       </p>
                     </div>
-                    <p className="font-bold text-success">{formatCurrency(dividend.amount)}</p>
+                    <div className="flex items-center gap-3">
+                      <p className="font-bold text-success">{formatCurrency(dividend.amount)}</p>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="glass">
+                          <DropdownMenuItem onClick={() => handleEdit(dividend)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(dividend.id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Excluir
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -316,14 +363,19 @@ export default function Dividends() {
       </div>
 
       {/* Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) setEditingDividend(null);
+      }}>
         <DialogContent className="glass">
           <DialogHeader>
-            <DialogTitle>Registrar Dividendo</DialogTitle>
+            <DialogTitle>{editingDividend ? 'Editar Dividendo' : 'Registrar Dividendo'}</DialogTitle>
           </DialogHeader>
           <DividendForm
+            dividend={editingDividend}
             onSuccess={() => {
               setIsDialogOpen(false);
+              setEditingDividend(null);
               loadDividends();
             }}
           />

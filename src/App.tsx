@@ -13,6 +13,10 @@ import Operations from "./pages/Operations";
 import Rebalance from "./pages/Rebalance";
 import Expenses from "./pages/Expenses";
 import Dividends from "./pages/Dividends";
+import Alerts from "./pages/Alerts";
+import Goals from "./pages/Goals";
+import Achievements from "./pages/Achievements";
+import TaxReport from "./pages/TaxReport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,6 +84,38 @@ const App = () => (
               element={
                 <Layout>
                   <Dividends />
+                </Layout>
+              }
+            />
+            <Route
+              path="/alerts"
+              element={
+                <Layout>
+                  <Alerts />
+                </Layout>
+              }
+            />
+            <Route
+              path="/goals"
+              element={
+                <Layout>
+                  <Goals />
+                </Layout>
+              }
+            />
+            <Route
+              path="/achievements"
+              element={
+                <Layout>
+                  <Achievements />
+                </Layout>
+              }
+            />
+            <Route
+              path="/tax-report"
+              element={
+                <Layout>
+                  <TaxReport />
                 </Layout>
               }
             />

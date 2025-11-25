@@ -1,8 +1,10 @@
 import { ReactNode, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAutoLogout } from '@/hooks/useAutoLogout';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Button } from '@/components/ui/button';
+import { PrivacyToggle } from '@/components/PrivacyToggle';
 import { 
   LayoutDashboard, 
   Wallet, 
@@ -29,6 +31,9 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Enable auto-logout
+  useAutoLogout();
 
   useEffect(() => {
     if (!loading && !user && location.pathname !== '/auth') {
@@ -108,14 +113,17 @@ export default function Layout({ children }: LayoutProps) {
               <p className="text-sm font-medium truncate">{user.email}</p>
               <p className="text-xs text-muted-foreground">Conta Premium</p>
             </div>
-            <Button
-              variant="ghost"
-              className="w-full justify-start"
-              onClick={signOut}
-            >
-              <LogOut size={16} className="mr-2" />
-              Sair
-            </Button>
+            <div className="flex items-center gap-2 px-4">
+              <PrivacyToggle />
+              <Button
+                variant="ghost"
+                className="flex-1 justify-start"
+                onClick={signOut}
+              >
+                <LogOut size={16} className="mr-2" />
+                Sair
+              </Button>
+            </div>
           </div>
         </div>
       </aside>

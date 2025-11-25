@@ -38,6 +38,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_insights: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          insight_type: string
+          is_read: boolean | null
+          priority: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          insight_type: string
+          is_read?: boolean | null
+          priority?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          insight_type?: string
+          is_read?: boolean | null
+          priority?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       alerts: {
         Row: {
           alert_type: string
@@ -135,6 +168,86 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      benchmarks: {
+        Row: {
+          benchmark_type: string
+          created_at: string | null
+          id: string
+          period_end: string
+          period_start: string
+          portfolio_id: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          benchmark_type: string
+          created_at?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          portfolio_id?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          benchmark_type?: string
+          created_at?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          portfolio_id?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benchmarks_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dividends: {
         Row: {
           amount: number
@@ -169,6 +282,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      documents: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string
+          id: string
+          is_encrypted: boolean | null
+          storage_path: string
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          is_encrypted?: boolean | null
+          storage_path: string
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          is_encrypted?: boolean | null
+          storage_path?: string
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       expense_categories: {
         Row: {
@@ -386,6 +535,39 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          auto_logout_minutes: number | null
+          created_at: string | null
+          id: string
+          mfa_enabled: boolean | null
+          privacy_mode: boolean | null
+          theme: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_logout_minutes?: number | null
+          created_at?: string | null
+          id?: string
+          mfa_enabled?: boolean | null
+          privacy_mode?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_logout_minutes?: number | null
+          created_at?: string | null
+          id?: string
+          mfa_enabled?: boolean | null
+          privacy_mode?: boolean | null
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

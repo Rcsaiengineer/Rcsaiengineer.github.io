@@ -4,6 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Wallet, DollarSign, PiggyBank, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { PrivateValue } from '@/components/PrivateValue';
+import { AIInsightsPanel } from '@/components/ai/AIInsightsPanel';
+import { AIChat } from '@/components/ai/AIChat';
 
 interface Stats {
   totalPortfolio: number;
@@ -118,7 +121,9 @@ export default function Dashboard() {
             <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalPortfolio)}</div>
+            <div className="text-2xl font-bold">
+              <PrivateValue value={formatCurrency(stats.totalPortfolio)} />
+            </div>
             <p className="text-xs text-success flex items-center mt-2">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               +0% este mês
@@ -151,7 +156,9 @@ export default function Dashboard() {
             <DollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{formatCurrency(stats.monthlyDividends)}</div>
+            <div className="text-2xl font-bold text-success">
+              <PrivateValue value={formatCurrency(stats.monthlyDividends)} />
+            </div>
             <p className="text-xs text-success flex items-center mt-2">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               Renda passiva
@@ -168,7 +175,9 @@ export default function Dashboard() {
             <PiggyBank className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">{formatCurrency(stats.monthlyExpenses)}</div>
+            <div className="text-2xl font-bold text-destructive">
+              <PrivateValue value={formatCurrency(stats.monthlyExpenses)} />
+            </div>
             <p className="text-xs text-destructive flex items-center mt-2">
               <ArrowDownRight className="h-3 w-3 mr-1" />
               Gastos do mês
@@ -177,35 +186,47 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Welcome Message */}
-      <Card className="glass border-border/50">
-        <CardHeader>
-          <CardTitle>Bem-vindo ao FinanceFlow</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            Este é seu centro de controle financeiro premium. Aqui você pode:
-          </p>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center">
-              <div className="w-2 h-2 bg-primary rounded-full mr-3" />
-              Gerenciar múltiplas carteiras de investimento
-            </li>
-            <li className="flex items-center">
-              <div className="w-2 h-2 bg-secondary rounded-full mr-3" />
-              Acompanhar dividendos e operações
-            </li>
-            <li className="flex items-center">
-              <div className="w-2 h-2 bg-success rounded-full mr-3" />
-              Controlar despesas pessoais
-            </li>
-            <li className="flex items-center">
-              <div className="w-2 h-2 bg-primary rounded-full mr-3" />
-              Realizar rebalanceamento inteligente
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
+      {/* AI Insights */}
+      <AIInsightsPanel />
+
+      {/* AI Chat */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AIChat />
+        
+        {/* Welcome Message */}
+        <Card className="glass border-border/50">
+          <CardHeader>
+            <CardTitle>Bem-vindo ao FinanceFlow</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              Este é seu centro de controle financeiro premium. Aqui você pode:
+            </p>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-primary rounded-full mr-3" />
+                Gerenciar múltiplas carteiras de investimento
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-secondary rounded-full mr-3" />
+                Acompanhar dividendos e operações
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-success rounded-full mr-3" />
+                Controlar despesas pessoais
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-primary rounded-full mr-3" />
+                Realizar rebalanceamento inteligente
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-secondary rounded-full mr-3" />
+                Insights automáticos com IA
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

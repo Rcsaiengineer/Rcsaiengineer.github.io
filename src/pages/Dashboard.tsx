@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 import { PrivateValue } from '@/components/PrivateValue';
 import { AIInsightsPanel } from '@/components/ai/AIInsightsPanel';
 import { AIChat } from '@/components/ai/AIChat';
+import { PortfolioEvolution } from '@/components/dashboard/PortfolioEvolution';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { RecentActivity } from '@/components/dashboard/RecentActivity';
 
 interface Stats {
   totalPortfolio: number;
@@ -27,6 +30,59 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadDashboardData();
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('dashboard-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wallets'
+        },
+        () => {
+          loadDashboardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'assets'
+        },
+        () => {
+          loadDashboardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'expenses'
+        },
+        () => {
+          loadDashboardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'dividends'
+        },
+        () => {
+          loadDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const loadDashboardData = async () => {
@@ -186,10 +242,19 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* Quick Actions */}
+      <QuickActions />
+
       {/* AI Insights */}
       <AIInsightsPanel />
 
-      {/* AI Chat */}
+      {/* Portfolio Evolution & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PortfolioEvolution />
+        <RecentActivity />
+      </div>
+
+      {/* AI Chat & Welcome */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AIChat />
         

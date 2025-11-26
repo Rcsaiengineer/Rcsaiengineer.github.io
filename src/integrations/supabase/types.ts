@@ -638,7 +638,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_wallet_total: {
+        Args: { wallet_id_param: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

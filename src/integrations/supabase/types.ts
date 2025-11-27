@@ -115,6 +115,33 @@ export type Database = {
           },
         ]
       }
+      api_rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          request_count: number | null
+          user_id: string
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          request_count?: number | null
+          user_id: string
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          request_count?: number | null
+          user_id?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       assets: {
         Row: {
           asset_class: string
@@ -172,11 +199,13 @@ export type Database = {
         Row: {
           action: string
           created_at: string | null
+          event_type: string | null
           id: string
           ip_address: string | null
           new_data: Json | null
           old_data: Json | null
           record_id: string | null
+          severity: string | null
           table_name: string | null
           user_agent: string | null
           user_id: string | null
@@ -184,11 +213,13 @@ export type Database = {
         Insert: {
           action: string
           created_at?: string | null
+          event_type?: string | null
           id?: string
           ip_address?: string | null
           new_data?: Json | null
           old_data?: Json | null
           record_id?: string | null
+          severity?: string | null
           table_name?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -196,11 +227,13 @@ export type Database = {
         Update: {
           action?: string
           created_at?: string | null
+          event_type?: string | null
           id?: string
           ip_address?: string | null
           new_data?: Json | null
           old_data?: Json | null
           record_id?: string | null
+          severity?: string | null
           table_name?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -355,8 +388,10 @@ export type Database = {
           category_id: string
           created_at: string
           description: string
+          document_id: string | null
           expense_date: string
           id: string
+          is_encrypted: boolean | null
           is_recurring: boolean | null
           payment_method: string | null
           recurrence_period: string | null
@@ -368,8 +403,10 @@ export type Database = {
           category_id: string
           created_at?: string
           description: string
+          document_id?: string | null
           expense_date?: string
           id?: string
+          is_encrypted?: boolean | null
           is_recurring?: boolean | null
           payment_method?: string | null
           recurrence_period?: string | null
@@ -381,8 +418,10 @@ export type Database = {
           category_id?: string
           created_at?: string
           description?: string
+          document_id?: string | null
           expense_date?: string
           id?: string
+          is_encrypted?: boolean | null
           is_recurring?: boolean | null
           payment_method?: string | null
           recurrence_period?: string | null
@@ -395,6 +434,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]
@@ -431,6 +477,33 @@ export type Database = {
           name?: string
           target_amount?: number
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      import_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          mapeamento: Json
+          nome: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mapeamento: Json
+          nome: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mapeamento?: Json
+          nome?: string
+          tipo?: string
           user_id?: string
         }
         Relationships: []
@@ -478,6 +551,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      price_cache: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          id: string
+          last_updated: string | null
+          price: number
+          source: string | null
+          ticker: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          last_updated?: string | null
+          price: number
+          source?: string | null
+          ticker: string
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          last_updated?: string | null
+          price?: number
+          source?: string | null
+          ticker?: string
+        }
+        Relationships: []
       }
       price_history: {
         Row: {
@@ -537,6 +640,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      shortcuts_expenses: {
+        Row: {
+          categoria_id: string | null
+          created_at: string | null
+          descricao_padrao: string | null
+          forma_pagamento_padrao: string | null
+          id: string
+          nome: string
+          updated_at: string | null
+          user_id: string
+          valor_padrao: number | null
+        }
+        Insert: {
+          categoria_id?: string | null
+          created_at?: string | null
+          descricao_padrao?: string | null
+          forma_pagamento_padrao?: string | null
+          id?: string
+          nome: string
+          updated_at?: string | null
+          user_id: string
+          valor_padrao?: number | null
+        }
+        Update: {
+          categoria_id?: string | null
+          created_at?: string | null
+          descricao_padrao?: string | null
+          forma_pagamento_padrao?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string | null
+          user_id?: string
+          valor_padrao?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shortcuts_expenses_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_settings: {
         Row: {

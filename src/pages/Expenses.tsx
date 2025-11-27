@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Plus, Receipt, TrendingDown, Calendar, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Receipt, TrendingDown, Calendar, MoreVertical, Pencil, Trash2, DollarSign, Tag } from 'lucide-react';
 import { toast } from 'sonner';
+import { QuickExpenseEntry } from '@/components/expenses/QuickExpenseEntry';
+import { ReceiptUpload } from '@/components/expenses/ReceiptUpload';
 
 interface ExpenseCategory {
   id: string;
@@ -209,11 +211,19 @@ export default function Expenses() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Despesas</h1>
-          <p className="text-muted-foreground">Controle completo dos seus gastos</p>
-        </div>
+      <div>
+        <h1 className="text-4xl font-bold mb-2">Despesas</h1>
+        <p className="text-muted-foreground">Controle completo dos seus gastos</p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <QuickExpenseEntry categories={categories} onSuccess={loadData} />
+        <ReceiptUpload categories={categories} onSuccess={loadData} />
+      </div>
+
+      {/* Add Full Expense Dialog */}
+      <div className="flex justify-end">
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
           if (!open) {
@@ -222,15 +232,15 @@ export default function Expenses() {
               description: '',
               amount: '',
               category_id: '',
-              payment_method: '',
-              expense_date: '',
+              payment_method: 'pix',
+              expense_date: new Date().toISOString().split('T')[0],
             });
           }
         }}>
           <DialogTrigger asChild>
-            <Button className="shadow-glow-primary">
+            <Button variant="outline" className="shadow-glow-primary">
               <Plus className="mr-2 h-4 w-4" />
-              Nova Despesa
+              Nova Despesa Completa
             </Button>
           </DialogTrigger>
           <DialogContent className="glass">
@@ -316,15 +326,18 @@ export default function Expenses() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="glass border-border/50">
+        <Card className="glass border-border/50 hover:shadow-glow-primary transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total de Despesas
             </CardTitle>
-            <Receipt className="h-4 w-4 text-primary" />
+            <DollarSign className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{formatCurrency(totalExpenses)}</div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {expenses.length} despesa{expenses.length !== 1 ? 's' : ''} registrada{expenses.length !== 1 ? 's' : ''}
+            </p>
           </CardContent>
         </Card>
 
@@ -345,7 +358,7 @@ export default function Expenses() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Categorias
             </CardTitle>
-            <Calendar className="h-4 w-4 text-secondary" />
+            <Tag className="h-4 w-4 text-secondary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categories.length}</div>

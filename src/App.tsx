@@ -18,6 +18,7 @@ import Alerts from "./pages/Alerts";
 import Goals from "./pages/Goals";
 import Achievements from "./pages/Achievements";
 import TaxReport from "./pages/TaxReport";
+import Import from "./pages/Import";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -118,6 +119,14 @@ const App = () => (
               element={
                 <Layout>
                   <TaxReport />
+                </Layout>
+              }
+            />
+            <Route
+              path="/import"
+              element={
+                <Layout>
+                  <Import />
                 </Layout>
               }
             />

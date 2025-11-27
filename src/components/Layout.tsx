@@ -18,7 +18,8 @@ import {
   Bell,
   Target,
   Trophy,
-  FileText
+  FileText,
+  Upload
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -60,6 +61,7 @@ export default function Layout({ children }: LayoutProps) {
     { to: '/rebalance', icon: TrendingUp, label: 'Rebalanceamento' },
     { to: '/dividends', icon: DollarSign, label: 'Dividendos' },
     { to: '/expenses', icon: Receipt, label: 'Despesas' },
+    { to: '/import', icon: Upload, label: 'Importar' },
     { to: '/alerts', icon: Bell, label: 'Alertas' },
     { to: '/goals', icon: Target, label: 'Metas' },
     { to: '/achievements', icon: Trophy, label: 'Conquistas' },

@@ -10,6 +10,7 @@ import { AssetForm } from '@/components/assets/AssetForm';
 import { AssetCard } from '@/components/assets/AssetCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { useAutoUpdatePrices } from '@/hooks/useAutoUpdatePrices';
 
 interface Wallet {
   id: string;
@@ -40,6 +41,9 @@ export default function Assets() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+  
+  // Auto-update prices every 15 minutes
+  useAutoUpdatePrices();
 
   useEffect(() => {
     loadWallet();

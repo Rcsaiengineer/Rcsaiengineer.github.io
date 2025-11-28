@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TrendingUp, Calculator, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAutoUpdatePrices } from '@/hooks/useAutoUpdatePrices';
 
 interface Wallet {
   id: string;
@@ -45,6 +46,9 @@ export default function Rebalance() {
   const [contribution, setContribution] = useState<string>('');
   const [rebalanceData, setRebalanceData] = useState<RebalanceItem[]>([]);
   const [totalPortfolio, setTotalPortfolio] = useState(0);
+  
+  // Auto-update prices every 15 minutes
+  useAutoUpdatePrices();
 
   useEffect(() => {
     loadWallets();

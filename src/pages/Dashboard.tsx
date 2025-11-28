@@ -10,6 +10,7 @@ import { AIChat } from '@/components/ai/AIChat';
 import { PortfolioEvolution } from '@/components/dashboard/PortfolioEvolution';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
+import { useAutoUpdatePrices } from '@/hooks/useAutoUpdatePrices';
 
 interface Stats {
   totalPortfolio: number;
@@ -27,6 +28,9 @@ export default function Dashboard() {
     monthlyDividends: 0,
   });
   const [loading, setLoading] = useState(true);
+  
+  // Auto-update prices every 15 minutes
+  useAutoUpdatePrices();
 
   useEffect(() => {
     loadDashboardData();

@@ -72,28 +72,54 @@ Deno.serve(async (req) => {
         }
       }
 
-      tickersToFetch.push(ticker.toUpperCase());
+      // Only add valid tickers (not test/dummy tickers)
+      if (ticker && ticker.length >= 4 && ticker.length <= 6 && /^[A-Z0-9]+$/.test(ticker.toUpperCase())) {
+        tickersToFetch.push(ticker.toUpperCase());
+      } else {
+        console.log(`Skipping invalid ticker: ${ticker}`);
+      }
     }
 
     // Fetch fresh prices for non-cached tickers
     if (tickersToFetch.length > 0) {
       const tickerList = tickersToFetch.join(',');
-      const brapiUrl = `${BRAPI_URL}/${tickerList}?fundamental=false&dividends=false`;
+      const brapiUrl = `${BRAPI_URL}/${tickerList}`;
       
       console.log('Fetching from brapi:', brapiUrl);
 
-      const brapiResponse = await fetch(brapiUrl, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+      // Optional: Add token if available
+      const brapiToken = Deno.env.get('BRAPI_TOKEN');
+      const headers: Record<string, string> = {
+        'Accept': 'application/json'
+      };
+      
+      // Only add Authorization if token exists
+      if (brapiToken) {
+        headers['Authorization'] = `Bearer ${brapiToken}`;
+      }
+
+      const brapiResponse = await fetch(brapiUrl, { headers });
+
+      console.log('Brapi response status:', brapiResponse.status);
 
       if (!brapiResponse.ok) {
-        console.error('Brapi error:', brapiResponse.status);
-        throw new Error('Failed to fetch prices from brapi');
+        const errorText = await brapiResponse.text();
+        console.error('Brapi error:', brapiResponse.status, errorText);
+        
+        // If API fails, return cached data if available or empty results
+        // Don't throw error, just return what we have
+        return new Response(
+          JSON.stringify({
+            success: true,
+            prices: results,
+            warning: 'Could not fetch fresh prices, using cached data if available'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       const brapiData = await brapiResponse.json();
+      console.log('Brapi data received:', JSON.stringify(brapiData).substring(0, 200));
 
       if (brapiData.results && Array.isArray(brapiData.results)) {
         for (const item of brapiData.results) {

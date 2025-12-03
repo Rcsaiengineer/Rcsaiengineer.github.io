@@ -1,7 +1,0 @@
-project_id = "zxbdmeeycaowikpsuodx"
-
-[functions.ai-insights]
-verify_jwt = true
-
-[functions.ai-chat]
-verify_jwt = true
